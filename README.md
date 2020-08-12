@@ -1,4 +1,4 @@
-# To buold mysql
+# To build mysql
 
 ```
 docker-compose up
