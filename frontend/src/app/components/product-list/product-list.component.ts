@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ProductService } from '../../service/product.service';
-import { Product } from '../../common/product';
 import { ActivatedRoute } from '@angular/router';
+
+import { ProductService } from '../../service/product.service';
+import { CartService } from '../../service/cart.service';
+import { Product } from '../../common/product';
+import { CartItem } from '../../common/cartItem';
 
 @Component({
   selector: 'app-product-list',
@@ -18,10 +21,11 @@ export class ProductListComponent implements OnInit {
   pageSize: number = 5;
   totalElements: number = 0;
 
-  previousKeyword : string = null;
+  previousKeyword: string = null;
 
   constructor(
     private productService: ProductService,
+    private cartService: CartService,
     private route: ActivatedRoute
   ) {}
 
@@ -50,7 +54,7 @@ export class ProductListComponent implements OnInit {
     this.previousKeyword = keyword;
 
     this.productService
-      .searchProductsPaginate(this.pageNumber -1, this.pageSize, keyword)
+      .searchProductsPaginate(this.pageNumber - 1, this.pageSize, keyword)
       .subscribe(this.processResult());
   }
 
@@ -66,7 +70,8 @@ export class ProductListComponent implements OnInit {
 
     this.previousCategoryId = this.categoryId;
 
-    this.productService.getProductListPaginate(
+    this.productService
+      .getProductListPaginate(
         this.pageNumber - 1,
         this.pageSize,
         this.categoryId
@@ -80,12 +85,17 @@ export class ProductListComponent implements OnInit {
     this.listProducts();
   }
 
+  addToCart(product: Product) {
+    const cartItem = new CartItem(product);
+    this.cartService.addToCart(cartItem);
+  }
+
   processResult() {
-    return data => {
+    return (data) => {
       this.products = data._embedded.products;
       this.pageNumber = data.page.number + 1;
       this.pageSize = data.page.size;
       this.totalElements = data.page.totalElements;
-    }
+    };
   }
 }
