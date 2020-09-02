@@ -33,14 +33,30 @@ export class CartService {
   computeCartTotals() {
     let totalPriceValue: number = 0;
     let totalQuantityValue: number = 0;
-    
-    for(let current of this.cartItems) {
-        totalPriceValue += current.quantity * current.unitPrice;
-        totalQuantityValue += current.quantity;
+
+    for (let current of this.cartItems) {
+      totalPriceValue += current.quantity * current.unitPrice;
+      totalQuantityValue += current.quantity;
     }
 
     // publica os eventos para os subscribers
     this.totalPrice.next(totalPriceValue);
     this.totalQuantity.next(totalQuantityValue);
+  }
+
+  decrementQuantity(cartItem: CartItem) {
+    cartItem.quantity--;
+    cartItem.quantity === 0
+      ? this.removeFromCart(cartItem)
+      : this.computeCartTotals();
+  }
+
+  removeFromCart(cartItem: CartItem) {
+    const itemIndex = this.cartItems.findIndex(
+      (element) => element.id === cartItem.id
+    );
+    if (itemIndex > -1) {
+      this.cartItems.splice(itemIndex, 1);
+    }
   }
 }
