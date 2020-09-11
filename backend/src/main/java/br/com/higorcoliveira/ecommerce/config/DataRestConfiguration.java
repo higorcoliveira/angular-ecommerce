@@ -1,7 +1,9 @@
 package br.com.higorcoliveira.ecommerce.config;
 
+import br.com.higorcoliveira.ecommerce.entity.Country;
 import br.com.higorcoliveira.ecommerce.entity.Product;
 import br.com.higorcoliveira.ecommerce.entity.ProductCategory;
+import br.com.higorcoliveira.ecommerce.entity.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -26,21 +28,24 @@ public class DataRestConfiguration implements RepositoryRestConfigurer {
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
-        HttpMethod[] unsupportedActions = {HttpMethod.DELETE, HttpMethod.POST, HttpMethod.PUT};
-
         // disable methods
-        config.getExposureConfiguration()
-                .forDomainType(Product.class)
-                .withItemExposure(((metdata, httpMethods) -> httpMethods.disable(unsupportedActions)))
-                .withCollectionExposure(((metdata, httpMethods) -> httpMethods.disable(unsupportedActions)));
-
-        config.getExposureConfiguration()
-                .forDomainType(ProductCategory.class)
-                .withItemExposure(((metdata, httpMethods) -> httpMethods.disable(unsupportedActions)))
-                .withCollectionExposure(((metdata, httpMethods) -> httpMethods.disable(unsupportedActions)));
+        configureExposition(Product.class, config);
+        configureExposition(ProductCategory.class, config);
+        configureExposition(ProductCategory.class, config);
+        configureExposition(Country.class, config);
+        configureExposition(State.class, config);
 
         // call a internal method to expose ids
         exposeIds(config);
+    }
+
+    private void configureExposition(Class clazz, RepositoryRestConfiguration config) {
+        HttpMethod[] unsupportedActions = {HttpMethod.DELETE, HttpMethod.POST, HttpMethod.PUT};
+
+        config.getExposureConfiguration()
+                .forDomainType(clazz)
+                .withItemExposure(((metdata, httpMethods) -> httpMethods.disable(unsupportedActions)))
+                .withCollectionExposure(((metdata, httpMethods) -> httpMethods.disable(unsupportedActions)));
     }
 
     private void exposeIds(RepositoryRestConfiguration config) {
@@ -53,6 +58,4 @@ public class DataRestConfiguration implements RepositoryRestConfigurer {
         Class[] domainTypes = entityClasses.toArray(new Class[0]);
         config.exposeIdsFor(domainTypes);
     }
-
-
 }
